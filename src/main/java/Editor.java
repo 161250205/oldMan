@@ -208,6 +208,7 @@ public class Editor extends Worker {
      */
     public String findHotWords(String newsContent) {
         String tmp;
+
         ArrayList<String> wordList = new ArrayList<>();
         ArrayList<Integer> countList = new ArrayList<>();
         tmp = newsContent.replaceAll("[\\p{Punct}\\pP]", " ");
@@ -270,6 +271,7 @@ public class Editor extends Worker {
      * @param title2
      */
     public double minDistance(String title1, String title2) {
+
         char[] s = title1.toCharArray();
         char[] t = title2.toCharArray();
         int m = s.length;
