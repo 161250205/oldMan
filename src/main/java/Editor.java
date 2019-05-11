@@ -74,14 +74,20 @@ public class Editor extends Worker {
             }
         }
 
+        //打印格式化后的字符串
         System.out.println(format);
     }
 
-    public int sizeOfSentence(String word){
-        int n = word.length();
+    /**
+     * 计算一个句子的字节数
+     * @param sentence
+     * @return
+     */
+    private int sizeOfSentence(String sentence){
+        int n = sentence.length();
         int count = 0;
         for (int i = 0; i < n; i++) {
-            char ch = word.charAt(i);
+            char ch = sentence.charAt(i);
             if (isCharacter(String.valueOf(ch)))
                 count+=2;
             else count +=1;
@@ -105,10 +111,14 @@ public class Editor extends Worker {
         return flg;
     }
 
-    public boolean isPunctuation(char ch) {
-        for (int i = 0; i < PUNCTUATIONS.length; i++) {
-            if (ch == PUNCTUATIONS[i])
-                return true;
+    /**
+     * 判断一个字符是不是标点符号
+     * @param ch
+     * @return
+     */
+    private boolean isPunctuation(char ch) {
+        for (char PUNCTUATION : PUNCTUATIONS) {
+            if (ch == PUNCTUATION) return true;
         }
         return false;
     }
@@ -232,26 +242,25 @@ public class Editor extends Worker {
      * @param title2
      */
     public double minDistance(String title1, String title2) {
-
         char[] s = title1.toCharArray();
         char[] t = title2.toCharArray();
         int m = s.length;
         int n = t.length;
-        int max = Math.max(m,n);
+        int maxLength = Math.max(m,n);
         int[][] dp = new int[m + 1][n + 1];
+        //得到最小的操作数
         int min = minDistance(s, t, dp, m, n);
-        double res = (1-(double)min/max) * 100;
+        //计算相似度
+        double res = (1-(double)min/maxLength) * 100;
+
         return Double.parseDouble(String.format("%.2f", res));
     }
 
     private int minDistance(char[] s, char[] t, int[][] dp, int i, int j) {
         if (dp[i][j] != 0) return dp[i][j];
-        if (i == 0) {
-            return dp[0][j] = j;
-        }
+        if (i == 0) return dp[0][j] = j;
         if (j == 0) return dp[i][0] = i;
         if (s[i - 1] == t[j - 1]) return dp[i][j] = minDistance(s, t, dp, i - 1, j - 1);
-
 
         return dp[i][j] = Math.min(minDistance(s, t, dp, i - 1, j),
                 Math.min(minDistance(s, t, dp, i, j - 1),
