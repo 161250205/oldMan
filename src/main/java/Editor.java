@@ -210,31 +210,14 @@ public class Editor extends Worker {
         String tmp;
         ArrayList<String> wordList = new ArrayList<>();
         ArrayList<Integer> countList = new ArrayList<>();
+        //将所给字符串的标点符号替换为空格，方便进一步处理
         tmp = newsContent.replaceAll("[\\p{Punct}\\pP]", " ");
-        for(int i=0;i<tmp.length()-1;i++){
-            if(tmp.charAt(i) == ' ' || tmp.charAt(i+1) == ' ')continue;
-            StringBuilder stringBuilder = new StringBuilder();
-            stringBuilder.append(tmp.charAt(i));
-            for (int j = 0;j < 9;j++){
-                if(j+i+1 >=tmp.length() || tmp.charAt(j+i+1) == ' ' )break;
-                stringBuilder.append(tmp.charAt(j+i+1));
-                if(wordList.contains(stringBuilder.toString())){
-                    int pos = wordList.indexOf(stringBuilder.toString());
-                    int count;
-                    count = countList.get(pos);
-                    count++;
-                    countList.set(pos,count);
-                }
-                else {
-                    wordList.add(stringBuilder.toString());
-                    countList.add(1);
-
-                }
-            }
-        }
+        //计算每个单词的出现数量
+        setHotWordsList(wordList,countList,tmp);
 
         int largePos = 0;
         int largeNum = 0;
+        //找到出现次数最多、最长、最先出现的字符串
         for (int i = 0; i < wordList.size(); i++) {
             if(countList.get(i) > largeNum ||
                     (countList.get(i) == largeNum &&
@@ -246,6 +229,39 @@ public class Editor extends Worker {
         }
 
         return wordList.get(largePos);
+    }
+
+    /**
+     * 对传入的经过预处理的字符串进行分析，计算出所有单词的数量
+     *
+     * @param wordList，countList, tmp
+     */
+    private void setHotWordsList(ArrayList<String> wordList,ArrayList<Integer> countList,String tmp){
+        for(int i=0;i<tmp.length()-1;i++){
+            if(tmp.charAt(i) == ' ' ||( tmp.charAt(i+1) == ' '))continue;
+            StringBuilder stringBuilder = new StringBuilder();
+            stringBuilder.append(tmp.charAt(i));
+            //从第一个字符开始，计算以该字符开头的所有单词
+            for (int j = 0;j < 9;j++){
+
+                if(j+i+1 >= tmp.length() || tmp.charAt(j+i+1) == ' ' )break;
+                stringBuilder.append(tmp.charAt(j+i+1));
+                //如果之前存在相同的字符串，则数量加一
+                if(wordList.contains(stringBuilder.toString())){
+                    int pos = wordList.indexOf(stringBuilder.toString());
+                    int count;
+                    count = countList.get(pos);
+                    count++;
+                    countList.set(pos,count);
+                }
+                //否则新建一个新的
+                else {
+                    wordList.add(stringBuilder.toString());
+                    countList.add(1);
+
+                }
+            }
+        }
     }
 
     /**
