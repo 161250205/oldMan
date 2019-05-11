@@ -76,4 +76,11 @@ public class EditorTest {
 		String ans = out.toString();
 		assertEquals("    给定一段字符串，重新排版，" + sep + "使得每行恰好有32个字符，" + sep + "并输出至控制台首行缩进，" + sep + "其余行数左对齐，" + sep + "每个短句不超过32个字符。" + sep, ans);
 	}
+
+	@Test(timeout = 4000)
+	public void test6() {
+		Editor e = new Editor("e", 21, 8000);
+		String newsContent = "今天的中国，呈现给世界的不仅有波澜壮阔的改革发展图景，更有一以贯之的平安祥和稳定。这平安祥和稳定";
+		assertEquals("平安祥和稳定", e.findHotWords(newsContent));
+	}
 }

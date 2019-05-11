@@ -233,10 +233,13 @@ public class Editor extends Worker {
         int largePos = 0;
         int largeNum = 0;
         for (int i = 0; i < wordList.size(); i++) {
-            if(countList.get(i) > largeNum){
+            if(countList.get(i) > largeNum ||
+                    (countList.get(i) == largeNum &&
+                            newsContent.indexOf(wordList.get(largePos)) == newsContent.indexOf(wordList.get(i)))){
                 largePos = i;
                 largeNum = countList.get(i);
             }
+
         }
 
         return wordList.get(largePos);
