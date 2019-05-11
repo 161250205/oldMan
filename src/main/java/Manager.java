@@ -30,7 +30,10 @@ public class Manager extends Worker {
 			return worker.add(e);
 		}
 		else{
-			throw new IllegalArgumentException("Access denied!");
+
+			return false;
+
+
 		}
 	}
 
