@@ -11,7 +11,7 @@ public class Manager extends Worker {
 	//Manager类的初始化
 	public Manager(String name, int age, int salary, String department) {
 		super(name,age,salary,department);
-		this.worker = new ArrayList<Worker>();
+		this.worker = new ArrayList<>();
 	}
 
 	// 管理人员可以查询本部门员工的基本信息，跨部门查询提示权限不足，提示“Access Denied!”
@@ -39,7 +39,8 @@ public class Manager extends Worker {
 
 	// 打印自己队伍的人员姓名，没有打印“Empty”
 	public String print() {
-		String res = "Statement for a";
+		String res;
+		res = this.department.equals("Worker")? "Statement for a":"Statement for any";
 		for (Worker w : this.worker){
 			StringBuilder stringBuilder = new StringBuilder();
 			stringBuilder.append(res);
