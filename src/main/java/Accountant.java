@@ -1,6 +1,6 @@
 
 public class Accountant extends Worker {
-	public String password;
+	private String password;
 	private String[] units = {"Billion","Million","Thousand","Hundred"};
 	private String[] belowtens = {"One","Two","Three","Four","Five","Six","Seven","Eight","Nine"};
 	private String[] tens = {"Ten","Eleven","Twelve","Thirteen","Fourteen","Fifteen","Sixteen","Seventeen","Eighteen","Nineteen"};
@@ -36,24 +36,26 @@ public class Accountant extends Worker {
      */
     public  String numberToWords (String number){
     	int num = -1;
+    	String illegalInfo = "illegal";
     	try {
 			num = Integer.parseInt(number);
-			if (num<0)return "illegal";
+			if (num<0)return illegalInfo;
 		}catch (Exception e){
-    		return "illegal";
+    		return illegalInfo;
 		}
-		if(num==-1)return "illegal";
+		if(num==-1)return illegalInfo;
 		return numberToWords(num);
-
     }
 	private String numberToWords(int num) {
 		if(num==0)return "Zero";
 		String numStr = Integer.toString(num);
 		String temp;
 		StringBuilder res = new StringBuilder();
+		//根据字符串长度分类
 		if(numStr.length()>9){
 			temp = numStr.substring(0,1);
-			res.append(belowtens[temp.charAt(0)-'1']+" Billion ");
+			res.append(belowtens[temp.charAt(0)-'1']);
+			res.append(" Billion ");
 			numStr = numStr.substring(1);
 		}
 		if(numStr.length()>6){
@@ -61,20 +63,25 @@ public class Accountant extends Worker {
 			temp = numStr.substring(0,f);
 			numStr = numStr.substring(f);
 			temp = smallNumToWords(temp);
-			if(temp.length()>0)
-				res.append(temp+"Million ");
+			if(temp!=null&&temp.length()>0){
+				res.append(temp);
+				res.append("Million ");
+			}
 		}
 		if(numStr.length()>3){
 			int f = numStr.length()-3;
 			temp = numStr.substring(0,f);
 			numStr = numStr.substring(f);
 			temp = smallNumToWords(temp);
-			if(temp.length()>0)
-				res.append(temp+"Thousand ");
+			if(temp!=null&&temp.length()>0) {
+				res.append(temp);
+				res.append("Thousand ");
+			}
 		}
 		res.append(smallNumToWords(numStr));
-		return res.toString().trim();
+		return res.toString().trim();//使用trim去除前后空格
 	}
+	//对小于1000的数字的分析，迭代思想
 	private String smallNumToWords(String temp){
 		if(temp==null)return null;
 		int length = temp.length();
@@ -121,12 +128,12 @@ public class Accountant extends Worker {
      * password: HelloWorld
      * return: 1
      *
-     * @param password
+     * @param
      */
     public  int checkPassword(){
 		int size = password.length();
-		int[] rt = new int[size];
-		int LowerCase = 1,UpperCase = 1,Num = 1;
+		int[] rt = new int[size];//用于记录当前位置的字母重复次数（以最后的一个重复字母位置为准）
+		int LowerCase = 1,UpperCase = 1,Num = 1;//默认缺少一个大写字母，一个小写字母，一个数字（即空字符串）
 		for (int i = 0; i < size;) {
 			char c = password.charAt(i);
 			if (c >= 'a' && c <= 'z') LowerCase = 0;
@@ -142,8 +149,17 @@ public class Accountant extends Worker {
 		int res = 0;
 		if (size < 8){
 			res = Math.max(miss,8 - size);
+			//aaaaaa1
+			if(miss==1&&8-size==1){
+				int max = 0;
+				for(int m:rt){
+					if(max<m)max = m;
+				}
+				if(max>4)res = 2;
+			}
 		}else{
-			int over = Math.max(size - 20, 0), left = 0;
+			int over = Math.max(size - 20, 0);
+			int left = 0;
 			res += over;
 			for (int k = 1; k < 3; ++k) {
 				for (int i = 0; i < size && over > 0; ++i) {
