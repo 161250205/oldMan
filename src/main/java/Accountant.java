@@ -128,24 +128,25 @@ public class Accountant extends Worker {
      * password: HelloWorld
      * return: 1
      *
-     * @param
      */
     public  int checkPassword(){
 		int size = password.length();
 		int[] rt = new int[size];//用于记录当前位置的字母重复次数（以最后的一个重复字母位置为准）
-		int LowerCase = 1,UpperCase = 1,Num = 1;//默认缺少一个大写字母，一个小写字母，一个数字（即空字符串）
+		int missLowerNum = 1;
+		int missUpperNum = 1;
+		int missDigitNum = 1;//默认缺少一个大写字母，一个小写字母，一个数字（即空字符串）
 		for (int i = 0; i < size;) {
 			char c = password.charAt(i);
-			if (c >= 'a' && c <= 'z') LowerCase = 0;
-			if (c >= 'A' && c <= 'Z') UpperCase = 0;
-			if (c >= '1' && c <= '9') Num = 0;
+			if (c >= 'a' && c <= 'z') missLowerNum = 0;
+			if (c >= 'A' && c <= 'Z') missUpperNum = 0;
+			if (c >= '1' && c <= '9') missDigitNum = 0;
 
 			int j = i;
 			while (i < size && c == password.charAt(i)) i++;
 			rt[j] = i - j;
 		}
 
-		int miss = LowerCase + UpperCase + Num;
+		int miss = missLowerNum + missUpperNum + missDigitNum;
 		int res = 0;
 		if (size < 8){
 			res = Math.max(miss,8 - size);
