@@ -204,8 +204,42 @@ public class Editor extends Worker {
      * @param newsContent
      */
     public String findHotWords(String newsContent) {
-        return newsContent;
+        String tmp;
+        ArrayList<String> wordList = new ArrayList<>();
+        ArrayList<Integer> countList = new ArrayList<>();
+        tmp = newsContent.replaceAll("[\\p{Punct}\\pP]", " ");
+        for(int i=0;i<tmp.length()-1;i++){
+            if(tmp.charAt(i) == ' ' || tmp.charAt(i+1) == ' ')continue;
+            StringBuilder stringBuilder = new StringBuilder();
+            stringBuilder.append(tmp.charAt(i));
+            for (int j = 0;j < 8;j++){
+                if(j+i+1 >=tmp.length() || tmp.charAt(j+i+1) == ' ' )break;
+                stringBuilder.append(tmp.charAt(j+i+1));
+                if(wordList.contains(stringBuilder.toString())){
+                    int pos = wordList.indexOf(stringBuilder.toString());
+                    int count;
+                    count = countList.get(pos);
+                    count++;
+                    countList.set(pos,count);
+                }
+                else {
+                    wordList.add(stringBuilder.toString());
+                    countList.add(1);
 
+                }
+            }
+        }
+
+        int largePos = 0;
+        int largeNum = 0;
+        for (int i = 0; i < wordList.size(); i++) {
+            if(countList.get(i) > largeNum){
+                largePos = i;
+                largeNum = countList.get(i);
+            }
+        }
+
+        return wordList.get(largePos);
     }
 
     /**
