@@ -1,13 +1,5 @@
-import net.sourceforge.pinyin4j.PinyinHelper;
-import net.sourceforge.pinyin4j.format.HanyuPinyinOutputFormat;
-import net.sourceforge.pinyin4j.format.HanyuPinyinToneType;
-import net.sourceforge.pinyin4j.format.exception.BadHanyuPinyinOutputFormatCombination;
-
-import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
+import java.text.Collator;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -48,12 +40,12 @@ public class Editor extends Worker {
      * 每个短句不超过32个字符。
      */
     public void textExtraction(String data) {
-        int n = data.length();
         List<String> sentences = new ArrayList<>();
         List<Integer> sizes = new ArrayList<>();
         String sentence = "";
         for (int i = 0; i < data.length(); i++) {
             char ch  = data.charAt(i);
+            //判断是否是标点符号
             if (isPunctuation(ch)){
                 sentence += ch;
                 sentences.add(sentence);
@@ -63,19 +55,21 @@ public class Editor extends Worker {
             }else sentence += ch;
         }
 
-        String format = "    ";
+        StringBuilder format = new StringBuilder("    ");
         int count = 4;
         int i = 0;
         while (i < sentences.size()){
+            //如果等于32个字节换行
             if (count == 32){
-                format += NEW_LINE;
+                format.append(NEW_LINE);
                 count = 0;
             }
+            //如果大于32个字节说明不能加到一行，需要进行换行
             if (count + sizes.get(i) >  MAX_SIZE){
                 count = 0;
-                format += NEW_LINE;
+                format.append(NEW_LINE);
             }else {
-                format += sentences.get(i);
+                format.append(sentences.get(i));
                 count += sizes.get(i++);
             }
         }
@@ -94,18 +88,6 @@ public class Editor extends Worker {
         }
 
         return count;
-    }
-
-    public static void main(String[] args) {
-        Editor editor = new Editor();
-       /* String a = "汉字a";
-        String data = "给定一段字符串，重新排版，使得每行恰好有32个字符，并输出至控制台首行缩进，其余行数左对齐，每个短句不超过32个字符。";
-        editor.textExtraction(data);
-        System.out.println(a.charAt(1));
-        System.out.println(editor.converCharacterToPingyin('我'));
-        System.out.println(editor.isPunctuation(','));*/
-
-        System.out.println(editor.minDistance("中国队是冠军","我们是冠军"));
     }
 
     /**
@@ -149,47 +131,10 @@ public class Editor extends Worker {
      * @param newsList
      */
     public ArrayList<String> newsSort(ArrayList<String> newsList) {
-        int n = newsList.size();
-        newsList.sort(new Comparator<String>() {
-            public int compare(String o1, String o2) {
-                return compareSentence(o1, o2);
-            }
-        });
+        Collator c = Collator.getInstance(Locale.SIMPLIFIED_CHINESE);
+        Collections.sort(newsList,c);
         return newsList;
 
-    }
-
-    public int compareSentence(String str1, String str2) {
-        int minLength = Math.min(str1.length(), str2.length());
-        for (int i = 0; i < minLength; i++) {
-            String pingyin1 = converCharacterToPingyin(str1.charAt(i));
-            String pingyin2 = converCharacterToPingyin(str2.charAt(i));
-            int res = comparePingyin(pingyin1, pingyin2);
-            if (res != 0) {
-                return res;
-            }
-        }
-
-        return (str1.length() == minLength) ? 1 : -1;
-    }
-
-    private int comparePingyin(String pingyin1, String pingyin2) {
-        return pingyin1.compareToIgnoreCase(pingyin2);
-    }
-
-    public String converCharacterToPingyin(char character) {
-        HanyuPinyinOutputFormat outputFormat = new HanyuPinyinOutputFormat();
-        outputFormat.setToneType(HanyuPinyinToneType.WITHOUT_TONE);
-        String[] strs;
-        StringBuffer sb = new StringBuffer();
-        try {
-            strs = PinyinHelper.toHanyuPinyinStringArray(character, outputFormat);
-            sb.append(strs[0]);
-        } catch (BadHanyuPinyinOutputFormatCombination badHanyuPinyinOutputFormatCombination) {
-            badHanyuPinyinOutputFormatCombination.printStackTrace();
-            return "";
-        }
-        return sb.toString();
     }
 
 
@@ -211,31 +156,14 @@ public class Editor extends Worker {
 
         ArrayList<String> wordList = new ArrayList<>();
         ArrayList<Integer> countList = new ArrayList<>();
+        //将所给字符串的标点符号替换为空格，方便进一步处理
         tmp = newsContent.replaceAll("[\\p{Punct}\\pP]", " ");
-        for(int i=0;i<tmp.length()-1;i++){
-            if(tmp.charAt(i) == ' ' || tmp.charAt(i+1) == ' ')continue;
-            StringBuilder stringBuilder = new StringBuilder();
-            stringBuilder.append(tmp.charAt(i));
-            for (int j = 0;j < 9;j++){
-                if(j+i+1 >=tmp.length() || tmp.charAt(j+i+1) == ' ' )break;
-                stringBuilder.append(tmp.charAt(j+i+1));
-                if(wordList.contains(stringBuilder.toString())){
-                    int pos = wordList.indexOf(stringBuilder.toString());
-                    int count;
-                    count = countList.get(pos);
-                    count++;
-                    countList.set(pos,count);
-                }
-                else {
-                    wordList.add(stringBuilder.toString());
-                    countList.add(1);
-
-                }
-            }
-        }
+        //计算每个单词的出现数量
+        setHotWordsList(wordList,countList,tmp);
 
         int largePos = 0;
         int largeNum = 0;
+        //找到出现次数最多、最长、最先出现的字符串
         for (int i = 0; i < wordList.size(); i++) {
             if(countList.get(i) > largeNum ||
                     (countList.get(i) == largeNum &&
@@ -247,6 +175,39 @@ public class Editor extends Worker {
         }
 
         return wordList.get(largePos);
+    }
+
+    /**
+     * 对传入的经过预处理的字符串进行分析，计算出所有单词的数量
+     *
+     * @param wordList，countList, tmp
+     */
+    private void setHotWordsList(ArrayList<String> wordList,ArrayList<Integer> countList,String tmp){
+        for(int i=0;i<tmp.length()-1;i++){
+            if(tmp.charAt(i) == ' ' ||( tmp.charAt(i+1) == ' '))continue;
+            StringBuilder stringBuilder = new StringBuilder();
+            stringBuilder.append(tmp.charAt(i));
+            //从第一个字符开始，计算以该字符开头的所有单词
+            for (int j = 0;j < 9;j++){
+
+                if(j+i+1 >= tmp.length() || tmp.charAt(j+i+1) == ' ' )break;
+                stringBuilder.append(tmp.charAt(j+i+1));
+                //如果之前存在相同的字符串，则数量加一
+                if(wordList.contains(stringBuilder.toString())){
+                    int pos = wordList.indexOf(stringBuilder.toString());
+                    int count;
+                    count = countList.get(pos);
+                    count++;
+                    countList.set(pos,count);
+                }
+                //否则新建一个新的
+                else {
+                    wordList.add(stringBuilder.toString());
+                    countList.add(1);
+
+                }
+            }
+        }
     }
 
     /**
@@ -285,7 +246,9 @@ public class Editor extends Worker {
 
     private int minDistance(char[] s, char[] t, int[][] dp, int i, int j) {
         if (dp[i][j] != 0) return dp[i][j];
-        if (i == 0) return dp[0][j] = j;
+        if (i == 0) {
+            return dp[0][j] = j;
+        }
         if (j == 0) return dp[i][0] = i;
         if (s[i - 1] == t[j - 1]) return dp[i][j] = minDistance(s, t, dp, i - 1, j - 1);
 
