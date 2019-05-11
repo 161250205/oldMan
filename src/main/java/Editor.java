@@ -102,15 +102,9 @@ public class Editor extends Worker {
         System.out.println(a.charAt(1));
         System.out.println(editor.converCharacterToPingyin('我'));
         System.out.println(editor.isPunctuation(','));*/
-        Comparator c = Collator.getInstance(Locale.CHINA);
-        List<String> list = new ArrayList<>();
-        list.add("谁");
-        list.add("我");
-        list.add("是");
-        Collections.sort(list,c);
-        System.out.println(list.toString());
+
         //System.out.println(editor);
-        //System.out.println(editor.minDistance("中国队是冠军","我们是冠军"));
+        System.out.println(editor.minDistance("中国队是冠军","我们是冠军"));
     }
 
     /**
@@ -277,26 +271,27 @@ public class Editor extends Worker {
      * @param title2
      */
     public double minDistance(String title1, String title2) {
-        char[] s = title1.toCharArray();
-        char[] t = title2.toCharArray();
-        int m = s.length;
-        int n = t.length;
+        char[] str1 = title1.toCharArray();
+        char[] str2 = title2.toCharArray();
+        int m = str1.length;
+        int n = str2.length;
         int max = Math.max(m,n);
         int[][] dp = new int[m + 1][n + 1];
-        int min = minDistance(s, t, dp, m, n);
+        int min = minDistance( dp, m, n,str1, str2);
         double res = (1-(double)min/max) * 100;
         return Double.parseDouble(String.format("%.2f", res));
     }
 
-    private int minDistance(char[] s, char[] t, int[][] dp, int i, int j) {
+    private int minDistance(int[][] dp, int i, int j,char[] str1, char[] str2) {
         if (dp[i][j] != 0) return dp[i][j];
-        if (i == 0) return dp[0][j] = j;
         if (j == 0) return dp[i][0] = i;
-        if (s[i - 1] == t[j - 1]) return dp[i][j] = minDistance(s, t, dp, i - 1, j - 1);
+        if (i == 0) return dp[0][j] = j;
+        if (str1[i - 1] == str2[j - 1]) return dp[i][j] = minDistance(dp, i - 1, j - 1,str1, str2);
 
+        dp[i][j] = Math.min(minDistance(dp, i, j - 1,str1, str2),
+                Math.min(minDistance(dp, i - 1, j,str1, str2),
+                        minDistance(dp, i - 1, j - 1,str1, str2))) + 1;
 
-        return dp[i][j] = Math.min(minDistance(s, t, dp, i - 1, j),
-                Math.min(minDistance(s, t, dp, i, j - 1),
-                        minDistance(s, t, dp, i - 1, j - 1))) + 1;
+        return dp[i][j];
     }
 }
