@@ -3,11 +3,9 @@ import net.sourceforge.pinyin4j.format.HanyuPinyinOutputFormat;
 import net.sourceforge.pinyin4j.format.HanyuPinyinToneType;
 import net.sourceforge.pinyin4j.format.exception.BadHanyuPinyinOutputFormatCombination;
 
+import java.text.Collator;
 import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -96,18 +94,6 @@ public class Editor extends Worker {
         return count;
     }
 
-    public static void main(String[] args) {
-        Editor editor = new Editor();
-       /* String a = "汉字a";
-        String data = "给定一段字符串，重新排版，使得每行恰好有32个字符，并输出至控制台首行缩进，其余行数左对齐，每个短句不超过32个字符。";
-        editor.textExtraction(data);
-        System.out.println(a.charAt(1));
-        System.out.println(editor.converCharacterToPingyin('我'));
-        System.out.println(editor.isPunctuation(','));*/
-
-        System.out.println(editor.minDistance("中国队是冠军","我们是冠军"));
-    }
-
     /**
      * 判断一个字符是不是汉字
      *
@@ -150,46 +136,10 @@ public class Editor extends Worker {
      */
     public ArrayList<String> newsSort(ArrayList<String> newsList) {
         int n = newsList.size();
-        newsList.sort(new Comparator<String>() {
-            public int compare(String o1, String o2) {
-                return compareSentence(o1, o2);
-            }
-        });
+        Collator c = Collator.getInstance(Locale.SIMPLIFIED_CHINESE);
+        Collections.sort(newsList,c);
         return newsList;
 
-    }
-
-    public int compareSentence(String str1, String str2) {
-        int minLength = Math.min(str1.length(), str2.length());
-        for (int i = 0; i < minLength; i++) {
-            String pingyin1 = converCharacterToPingyin(str1.charAt(i));
-            String pingyin2 = converCharacterToPingyin(str2.charAt(i));
-            int res = comparePingyin(pingyin1, pingyin2);
-            if (res != 0) {
-                return res;
-            }
-        }
-
-        return (str1.length() == minLength) ? 1 : -1;
-    }
-
-    private int comparePingyin(String pingyin1, String pingyin2) {
-        return pingyin1.compareToIgnoreCase(pingyin2);
-    }
-
-    public String converCharacterToPingyin(char character) {
-        HanyuPinyinOutputFormat outputFormat = new HanyuPinyinOutputFormat();
-        outputFormat.setToneType(HanyuPinyinToneType.WITHOUT_TONE);
-        String[] strs;
-        StringBuffer sb = new StringBuffer();
-        try {
-            strs = PinyinHelper.toHanyuPinyinStringArray(character, outputFormat);
-            sb.append(strs[0]);
-        } catch (BadHanyuPinyinOutputFormatCombination badHanyuPinyinOutputFormatCombination) {
-            badHanyuPinyinOutputFormatCombination.printStackTrace();
-            return "";
-        }
-        return sb.toString();
     }
 
 
