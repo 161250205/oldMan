@@ -42,21 +42,21 @@ public class Programmer extends Worker {
         {
             case "Develop":
                 bonus += this.getSalary() * 0.2;
-                other = overtime * 100;
+                other = overtime * 100.0;
                 other = other > 500 ? 500 : other;
                 bonus += other;
 
                 break;
             case "UI":
                 bonus = this.getSalary() * 0.25;
-                other = overtime * 50;
+                other = overtime * 50.0;
                 other = other > 300 ? 300 : other;
                 bonus += other;
 
                 break;
             case "Test":
                 bonus = this.getSalary() * 0.15;
-                other = overtime * 150;
+                other = overtime * 150.0;
                 other = other > 1000 ? 1000 : other;
                 bonus += other;
                 break;
@@ -67,6 +67,7 @@ public class Programmer extends Worker {
     }
 
     // 展示基本信息
+    @Override
     public String show() {
         StringBuilder infoBuffer = new StringBuilder();
         infoBuffer.append("My name is ");
