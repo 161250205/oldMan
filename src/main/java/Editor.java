@@ -3,11 +3,9 @@ import net.sourceforge.pinyin4j.format.HanyuPinyinOutputFormat;
 import net.sourceforge.pinyin4j.format.HanyuPinyinToneType;
 import net.sourceforge.pinyin4j.format.exception.BadHanyuPinyinOutputFormatCombination;
 
+import java.text.Collator;
 import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -104,8 +102,15 @@ public class Editor extends Worker {
         System.out.println(a.charAt(1));
         System.out.println(editor.converCharacterToPingyin('我'));
         System.out.println(editor.isPunctuation(','));*/
-
-        System.out.println(editor.minDistance("中国队是冠军","我们是冠军"));
+        Comparator c = Collator.getInstance(Locale.CHINA);
+        List<String> list = new ArrayList<>();
+        list.add("谁");
+        list.add("我");
+        list.add("是");
+        Collections.sort(list,c);
+        System.out.println(list.toString());
+        //System.out.println(editor);
+        //System.out.println(editor.minDistance("中国队是冠军","我们是冠军"));
     }
 
     /**
@@ -150,11 +155,13 @@ public class Editor extends Worker {
      */
     public ArrayList<String> newsSort(ArrayList<String> newsList) {
         int n = newsList.size();
-        newsList.sort(new Comparator<String>() {
-            public int compare(String o1, String o2) {
-                return compareSentence(o1, o2);
-            }
-        });
+        Comparator c = Collator.getInstance(Locale.CHINA);
+        Collections.sort(newsList,c);
+//        newsList.sort(new Comparator<String>() {
+//            public int compare(String o1, String o2) {
+//                return compareSentence(o1, o2);
+//            }
+//        });
         return newsList;
 
     }
