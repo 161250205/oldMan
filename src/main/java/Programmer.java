@@ -9,6 +9,9 @@ public class Programmer extends Worker {
 	// Programmer类的初始化
 	public Programmer(String name, int age, int salary, String language,
 			String type) {
+		super(name,age,salary,"");
+		this.language=language;
+		this.type=type;
 	}
 
 	public String getLanguage() {
