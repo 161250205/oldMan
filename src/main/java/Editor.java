@@ -97,12 +97,14 @@ public class Editor extends Worker {
 
     public static void main(String[] args) {
         Editor editor = new Editor();
-        String a = "汉字a";
+       /* String a = "汉字a";
         String data = "给定一段字符串，重新排版，使得每行恰好有32个字符，并输出至控制台首行缩进，其余行数左对齐，每个短句不超过32个字符。";
         editor.textExtraction(data);
         System.out.println(a.charAt(1));
         System.out.println(editor.converCharacterToPingyin('我'));
-        System.out.println(editor.isPunctuation(','));
+        System.out.println(editor.isPunctuation(','));*/
+
+        editor.minDistance("中国队是冠军","我们是冠军");
     }
 
     /**
@@ -267,7 +269,45 @@ public class Editor extends Worker {
      * @param title2
      */
     public double minDistance(String title1, String title2) {
-        return 0;
+        int length1 = title1.length();
+        int length2 = title2.length();
+        int maxLength = Math.max(length1,length2);
+
+        int[][] dp = new int[title1.length()][title2.length()];
+
+
+        for (int i = 0; i < length1; i++) {
+            dp[i][0] = i;
+        }
+
+        for (int j = 0; j < length2; j++) {
+            dp[0][j] = j;
+        }
+
+        //if(title1.charAt(0) != title2.charAt(0))dp[0][0] = 1;
+
+        for (int i = 1; i < length1; i++) {
+            for (int j = 1; j < length2; j++) {
+                int cost = ((title1.charAt(i) == title2.charAt(j)) ? 0 : 1);
+                int del = dp[i - 1][j] + 1;
+                int insert = dp[i][j - 1] + 1;
+                int sub = dp[i - 1][j - 1] + cost;
+                dp[i][j] = Math.min(del, Math.min(insert, sub));
+            }
+        }
+
+//        for (int i = 1; i < length1; i++) {
+//            for (int j = 1; j < length2; j++) {
+//                if (title1.charAt(i) == title2.charAt(j))
+//                    dp[i][j] = dp[i-1][j-1];
+//                else
+//                    dp[i][j] = Math.min(dp[i-1][j]+1,Math.min(dp[i][j-1]+1,dp[i-1][j-1]+1));
+//            }
+//        }
+
+        System.out.println(dp[length1-1][length2-1]);
+        int min = dp[length1-1][length2-1];
+        return (1-min/maxLength) *100;
 
     }
 }
