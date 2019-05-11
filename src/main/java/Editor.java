@@ -268,46 +268,22 @@ public class Editor extends Worker {
      * @param title1
      * @param title2
      */
-    public double minDistance(String title1, String title2) {
-        int length1 = title1.length();
-        int length2 = title2.length();
-        int maxLength = Math.max(length1,length2);
+    public double minDistance(String word1, String word2) {
+        char[] s = word1.toCharArray();
+        char[] t = word2.toCharArray();
+        int m = s.length;
+        int n = t.length;
+        int[][] dp = new int[m + 1][n + 1];
+        return minDistance(s, t, dp, m, n);
+    }
 
-        int[][] dp = new int[title1.length()][title2.length()];
-
-
-        for (int i = 0; i < length1; i++) {
-            dp[i][0] = i;
-        }
-
-        for (int j = 0; j < length2; j++) {
-            dp[0][j] = j;
-        }
-
-        //if(title1.charAt(0) != title2.charAt(0))dp[0][0] = 1;
-
-        for (int i = 1; i < length1; i++) {
-            for (int j = 1; j < length2; j++) {
-                int cost = ((title1.charAt(i) == title2.charAt(j)) ? 0 : 1);
-                int del = dp[i - 1][j] + 1;
-                int insert = dp[i][j - 1] + 1;
-                int sub = dp[i - 1][j - 1] + cost;
-                dp[i][j] = Math.min(del, Math.min(insert, sub));
-            }
-        }
-
-//        for (int i = 1; i < length1; i++) {
-//            for (int j = 1; j < length2; j++) {
-//                if (title1.charAt(i) == title2.charAt(j))
-//                    dp[i][j] = dp[i-1][j-1];
-//                else
-//                    dp[i][j] = Math.min(dp[i-1][j]+1,Math.min(dp[i][j-1]+1,dp[i-1][j-1]+1));
-//            }
-//        }
-
-        System.out.println(dp[length1-1][length2-1]);
-        int min = dp[length1-1][length2-1];
-        return (1-min/maxLength) *100;
-
+    private int minDistance(char[] s, char[] t, int[][] dp, int i, int j) {
+        if (dp[i][j] != 0) return dp[i][j];
+        if (i == 0) return dp[0][j] = j;
+        if (j == 0) return dp[i][0] = i;
+        if (s[i - 1] == t[j - 1]) return dp[i][j] = minDistance(s, t, dp, i - 1, j - 1);
+        return dp[i][j] = Math.min(minDistance(s, t, dp, i - 1, j),
+                Math.min(minDistance(s, t, dp, i, j - 1),
+                        minDistance(s, t, dp, i - 1, j - 1))) + 1;
     }
 }
