@@ -40,7 +40,7 @@ public class Manager extends Worker {
 	// 打印自己队伍的人员姓名，没有打印“Empty”
 	public String print() {
 		String res;
-		res = this.department.equals("Worker")? "Statement for a":"Statement for any";
+		res = this.department.equals("Programmer")? "Statement for a":"Statement for any";
 		for (Worker w : this.worker){
 			StringBuilder stringBuilder = new StringBuilder();
 			stringBuilder.append(res);
