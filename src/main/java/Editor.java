@@ -1,10 +1,4 @@
-import net.sourceforge.pinyin4j.PinyinHelper;
-import net.sourceforge.pinyin4j.format.HanyuPinyinOutputFormat;
-import net.sourceforge.pinyin4j.format.HanyuPinyinToneType;
-import net.sourceforge.pinyin4j.format.exception.BadHanyuPinyinOutputFormatCombination;
-
 import java.text.Collator;
-import java.text.DecimalFormat;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -46,12 +40,12 @@ public class Editor extends Worker {
      * 每个短句不超过32个字符。
      */
     public void textExtraction(String data) {
-        int n = data.length();
         List<String> sentences = new ArrayList<>();
         List<Integer> sizes = new ArrayList<>();
         String sentence = "";
         for (int i = 0; i < data.length(); i++) {
             char ch  = data.charAt(i);
+            //判断是否是标点符号
             if (isPunctuation(ch)){
                 sentence += ch;
                 sentences.add(sentence);
@@ -61,19 +55,21 @@ public class Editor extends Worker {
             }else sentence += ch;
         }
 
-        String format = "    ";
+        StringBuilder format = new StringBuilder("    ");
         int count = 4;
         int i = 0;
         while (i < sentences.size()){
+            //如果等于32个字节换行
             if (count == 32){
-                format += NEW_LINE;
+                format.append(NEW_LINE);
                 count = 0;
             }
+            //如果大于32个字节说明不能加到一行，需要进行换行
             if (count + sizes.get(i) >  MAX_SIZE){
                 count = 0;
-                format += NEW_LINE;
+                format.append(NEW_LINE);
             }else {
-                format += sentences.get(i);
+                format.append(sentences.get(i));
                 count += sizes.get(i++);
             }
         }
@@ -135,7 +131,6 @@ public class Editor extends Worker {
      * @param newsList
      */
     public ArrayList<String> newsSort(ArrayList<String> newsList) {
-        int n = newsList.size();
         Collator c = Collator.getInstance(Locale.SIMPLIFIED_CHINESE);
         Collections.sort(newsList,c);
         return newsList;
@@ -235,7 +230,9 @@ public class Editor extends Worker {
 
     private int minDistance(char[] s, char[] t, int[][] dp, int i, int j) {
         if (dp[i][j] != 0) return dp[i][j];
-        if (i == 0) return dp[0][j] = j;
+        if (i == 0) {
+            return dp[0][j] = j;
+        }
         if (j == 0) return dp[i][0] = i;
         if (s[i - 1] == t[j - 1]) return dp[i][j] = minDistance(s, t, dp, i - 1, j - 1);
 
