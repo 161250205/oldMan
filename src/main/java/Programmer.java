@@ -40,19 +40,21 @@ public class Programmer extends Worker {
         switch (this.getType())
 
         {
-            case "DEVELOP":
+            case "Develop":
                 bonus += this.getSalary() * 0.2;
                 other = overtime * 100;
                 other = other > 500 ? 500 : other;
                 bonus += other;
+
                 break;
             case "UI":
                 bonus = this.getSalary() * 0.25;
                 other = overtime * 50;
                 other = other > 300 ? 300 : other;
                 bonus += other;
+
                 break;
-            case "TEST":
+            case "Test":
                 bonus = this.getSalary() * 0.15;
                 other = overtime * 150;
                 other = other > 1000 ? 1000 : other;
@@ -117,6 +119,7 @@ public class Programmer extends Worker {
      * @param comment
      */
     public String hideUserinfo(String comment) {
+
         comment=comment.toLowerCase();
         String checkEmail = "^([a-z0-9A-Z]+[-|\\.]?)+[a-z0-9A-Z]@([a-z0-9A-Z]+(-[a-z0-9A-Z]+)?\\.)+[a-zA-Z]{2,}$";
         Pattern regex = Pattern.compile(checkEmail);
@@ -132,16 +135,25 @@ public class Programmer extends Worker {
         } else {
             comment=comment.replaceAll(" ", "");
             comment=comment.replaceAll("[()\\+-]", "");
-            if(comment.length()==10){
-                return "***-***-"+comment.substring(6, comment.length());
-            }else if(comment.length()>10){
-                String internationString=comment.substring(0,comment.length()-10);
-                String starsString="*******";
-                internationString="+"+starsString.substring(0,internationString.length());
-                return internationString+"-***-***-"+comment.substring(comment.length()-4,comment.length());
+            String checkNumberString="[0-9]+";
+            regex=Pattern.compile(checkNumberString);
+            matcher=regex.matcher(comment);
+            boolean isNumber=matcher.matches();
+            if(isNumber){
+                if(comment.length()==10){
+                    return "***-***-"+comment.substring(6, comment.length());
+                }else if(comment.length()>10&&comment.length()<14){
+                    String internationString=comment.substring(0,comment.length()-10);
+                    String starsString="********************";
+                    internationString="+"+starsString.substring(0,internationString.length());
+                    return internationString+"-***-***-"+comment.substring(comment.length()-4,comment.length());
+                }else{
+                    throw new IllegalArgumentException();
+                }
             }else{
                 throw new IllegalArgumentException();
             }
+
         }
     }
 
