@@ -214,7 +214,7 @@ public class Editor extends Worker {
             if(tmp.charAt(i) == ' ' || tmp.charAt(i+1) == ' ')continue;
             StringBuilder stringBuilder = new StringBuilder();
             stringBuilder.append(tmp.charAt(i));
-            for (int j = 0;j < 8;j++){
+            for (int j = 0;j < 9;j++){
                 if(j+i+1 >=tmp.length() || tmp.charAt(j+i+1) == ' ' )break;
                 stringBuilder.append(tmp.charAt(j+i+1));
                 if(wordList.contains(stringBuilder.toString())){
